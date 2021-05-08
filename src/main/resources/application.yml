@@ -1,1 +1,39 @@
+server:
+  port: 8888
+  servlet:
+    encoding:
+      charset: UTF-8
 
+spring:
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/daoyun?characterEncoding=utf-8
+    username: root
+    password: root
+  # redis 配置
+  redis:
+    host: localhost
+    port: 6379
+
+
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+
+daoyun:
+  jwt:
+    secret: a6068445-c640-4d36-adba-468af53e7f11
+    expire: 14400 # 7天,单位秒
+  token:
+    header: token
+    renew:  3600000      # 续期时间范围，默认1小时，单位毫秒
+    # token 续期检查时间范围（默认30分钟，单位毫秒），在token即将过期的一段时间内用户操作了，则给用户的token续期
+    detect: 1800000
+    # 令牌过期时间此处单位/毫秒,默认4小时
+    token-validity-in-seconds: 14400000
+    # 在线用户 key
+    online-key: online-token-
+  sms:
+    expire: 14400
+    secretid: AKIDlhQt7FZj8dvxlJvfRyHjS2NT1qPj3j8I
+    secretkey: 3OH0QZVCfHfdKmyxA6nEOIyO9euwiKvI
