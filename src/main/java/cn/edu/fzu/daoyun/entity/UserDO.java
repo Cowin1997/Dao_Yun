@@ -18,9 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDO extends BaseDO implements Serializable {
-    @NotNull
-    @NotEmpty(message = "昵称不能为空")
-    @Size(min = 4, max = 32, message = "最小长度为4,最大长度为32")
+
     private String nickname;
     @Size(max = 255, message = "最大长度为255")
     private String avatar;

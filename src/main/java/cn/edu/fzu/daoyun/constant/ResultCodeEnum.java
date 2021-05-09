@@ -7,11 +7,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ResultCodeEnum {
-    SUCCESS(2000,"successful"),
+    SUCCESS(2000,"请求成功"),
     CAPTCHA_SUCCESS(2002,"验证码获取成功"),
     LOGIN_SUCCESS(2001,"登录成功"),
+    REGIST_SUCCESS(2002,"注册成功"),
+    PWDRESET_SUCCESS(2003,"密码重置成功"),
 
-
+    FAILURE(4000,"请求失败"),
     LOGIN_INVALID(4001,"用户名或密码错误"),
     LOGIN_DISABLED(4002,"账户被禁用"),
     LOGIN_LOCKED(4003,"账户被锁定"),
@@ -22,7 +24,8 @@ public enum ResultCodeEnum {
     CAPTCHA_INVAILD(4503,"验证码错误"),
     CODE_INVAILD(4505,"短信验证码错误"),
     CODE_EXPIRED(4506,"短信验证码过期"),
-    TOKEN_INVALID(4504,"无效的token")
+    TOKEN_INVALID(4504,"无效的token"),
+    PWDRESET_FAILURE(4507,"密码重置失败"),
     ;
     //响应状态码
     private Integer code;

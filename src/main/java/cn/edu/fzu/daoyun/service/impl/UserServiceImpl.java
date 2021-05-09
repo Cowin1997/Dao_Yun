@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDO getUserById(Integer id) {
-        return userMapper.selectById(id);
+        return userMapper.selectUserById(id);
     }
 
     /*
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserDetailByIdentifier(String identifier) {
         UserAuthDO userAuth = userAuthMapper.selectByIdentifier(identifier);
         if(userAuth==null) return null;
-        UserDO user = userMapper.selectById(userAuth.getUser_id());
+        UserDO user = userMapper.selectUserById(userAuth.getUser_id());
         return new UserDTO(user,userAuth);
     }
 

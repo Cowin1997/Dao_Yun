@@ -20,7 +20,7 @@ public class BaseDO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull
     public Date gmt_create;
-    @NotNull
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date gmt_modified;
 }
