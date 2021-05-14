@@ -18,7 +18,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class StudentDO  extends BaseDO implements Serializable {
-    private Integer id;
     private Integer user_id;
     private Integer sid;
     private String name;

@@ -13,8 +13,10 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 public class JwtUserDTO implements UserDetails {
-    private UserDTO userDTO;
+    private UserDTO user; // 用户信息
 
+
+    private String token;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
@@ -22,12 +24,12 @@ public class JwtUserDTO implements UserDetails {
 
     @Override
     public String getPassword() {
-        return userDTO.getUserAuth().getCredential();
+        return user.getUserAuth().getCredential();
     }
 
     @Override
     public String getUsername() {
-        return userDTO.getUserAuth().getIdentifier();
+        return user.getUserAuth().getIdentifier();
     }
 
     @Override
@@ -47,6 +49,6 @@ public class JwtUserDTO implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return userDTO.getUser().getEnabled();
+        return user.getUser().getEnabled();
     }
 }

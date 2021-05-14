@@ -6,19 +6,29 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
+
 @Mapper
 public interface StudentMapper {
 
 
     @Select("select * from student where sid=#{sid};")
-    public StudentDO selectBySid(String sid);
+    public StudentDO selectBySid(Integer sid);
 
+    @Select("select * from student where user_id=#{uid};")
+    public StudentDO selectByUserId(Integer uid);
 
     @Insert("insert into student(user_id,sid,name,gender,phone,school_code,college_code,major_code,gmt_create,gmt_modified) " +
             "values(#{user_id},#{sid},#{name},#{gender},#{phone},#{school_code},#{college_code},#{major_code},#{gmt_create},#{gmt_modified});")
     public Boolean insertStudent(StudentDO student);
 
 
+    /**
+     *  根据用户 id 获取学生信息
+     * @param userId
+     * @return
+     */
+    @Select("select * from student where user_id = #{userId};")
+    public StudentDO getStudentByUserId(Integer userId);
 
 //    @Select("select count(*) from selectcourse where cs_id=#{cid};")
 //    public Integer getTotalByCid(String cid);
@@ -33,22 +43,22 @@ public interface StudentMapper {
 //    @Select("Select * from student where st_school=#{sch} limit #{from},#{to};")
 //    public List<Student> getStudentBySch(Integer sch,Integer from,Integer to);
 //
-//    @Select("select count(*) from student where st_school=#{sch} and st_college=#{col};")
-//    public Integer getTotalBySch_Col(Integer sch,Integer col);
-//    @Select("Select * from student where st_school=#{sch} and st_college=#{col} limit #{from},#{to};")
-//    public List<Student> getStudentBySch_Col(Integer sch, Integer col,Integer from,Integer to);
-//
-//    @Select("select count(*) from student where st_school=#{sch} and st_college=#{col} and st_major=#{maj};")
-//    public Integer getTotalBySch_Col_Maj(Integer sch, Integer col,Integer maj);
-//    @Select("Select * from student where st_school=#{sch} and st_college=#{col} and st_major=#{maj} limit #{from},#{to};")
-//    public List<Student> getStudentBySch_Col_Maj(Integer sch, Integer col,Integer maj,Integer from,Integer to);
-//
-//
-//
-//    @Delete("delete  from student where st_id=#{sid};")
-//    public Boolean delStudentBySid(String sid);
-//
-//
-//    @Update("update student set st_name=#{st_name}, st_sex=#{st_sex},st_phone=#{st_phone},st_email=#{st_email},st_school=#{st_school},st_college=#{st_college},st_major=#{st_major},st_grade=#{st_grade} where st_id=#{st_id};")
-//    public Boolean updateStudent(Student student);
+    @Select("select count(*) from student where school_code=#{sch} and college_code=#{col};")
+    public Integer getTotalBySch_Col(Integer sch,Integer col);
+    @Select("Select * from student where school_code=#{sch} and college_code=#{col} limit #{from},#{to};")
+    public List<StudentDO> getStudentBySch_Col(Integer sch, Integer col, Integer from, Integer to);
+
+    @Select("select count(*) from student where school_code=#{sch} and college_code=#{col} and major_code=#{maj};")
+    public Integer getTotalBySch_Col_Maj(Integer sch, Integer col,Integer maj);
+    @Select("Select * from student where school_code=#{sch} and college_code=#{col} and major_code=#{maj} limit #{from},#{to};")
+    public List<StudentDO> getStudentBySch_Col_Maj(Integer sch, Integer col,Integer maj,Integer from,Integer to);
+
+
+
+    @Delete("delete  from student where sid=#{sid};")
+    public Boolean delStudentBySid(Integer sid);
+
+
+    @Update("update student set name=#{name}, gender=#{gender},phone=#{phone},school_code=#{school_code},college_code=#{college_code},major_code=#{major_code},gmt_modified=#{gmt_modified} where sid=#{sid};")
+    public Boolean updateStudent(StudentDO student);
 }

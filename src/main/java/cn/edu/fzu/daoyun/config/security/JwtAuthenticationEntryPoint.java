@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import javax.servlet.ServletException;
@@ -26,8 +27,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             SendError(response, Result.failure(ResultCodeEnum.LOGIN_DISABLED));
         }else if(e.getClass() == BadCredentialsException.class){
             SendError(response, Result.failure(ResultCodeEnum.LOGIN_INVALID));
+        }else if(e.getClass() == UsernameNotFoundException.class){
+            SendError(response, Result.failure(ResultCodeEnum.LOGIN_UNEXIST));
         }
-
         else{
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }

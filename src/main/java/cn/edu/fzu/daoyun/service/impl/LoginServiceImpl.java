@@ -23,6 +23,7 @@ import cn.edu.fzu.daoyun.query.RegisterQuery;
 import cn.edu.fzu.daoyun.service.OnlineUserService;
 import cn.edu.fzu.daoyun.utils.JwtUtils;
 import cn.edu.fzu.daoyun.utils.RedisUtils;
+import cn.edu.fzu.daoyun.vo.LoginVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -57,33 +58,35 @@ public class LoginServiceImpl {
      * @param loginQuery
      * @return
      */
-    public String loginByLocal(LoginQuery loginQuery){
+    public JwtUserDTO loginByLocal(LoginQuery loginQuery){
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginQuery.getIdentifier(), loginQuery.getCredential());
-        String token = doLogin(authenticationToken);
-        return token;
+        JwtUserDTO jwtUserDTO = doLogin(authenticationToken);
+        return jwtUserDTO;
     }
 
-    public String doLogin(AbstractAuthenticationToken authenticationToken){
+    public JwtUserDTO doLogin(AbstractAuthenticationToken authenticationToken){
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         // 存储安全上下文(security context)的信息
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        // 登录成功
+        // 登录成功, 返回 loadUserByUsername 方法返回的 JwtUserDTO
         JwtUserDTO jwtUserDTO = (JwtUserDTO) authentication.getPrincipal();
-        String token = jwtUtils.generate(jwtUserDTO.getUserDTO().getUser());
+        String token = jwtUtils.generate(jwtUserDTO.getUser().getUser());
+        jwtUserDTO.setToken(token);
         // 保存在线信息
-        onlineUserService.save(jwtUserDTO, token);
+//        onlineUserService.save(jwtUserDTO, token);
         // 踢掉之前已经登录的 token
         //**
         //**
-        return token;
+        log.info(jwtUserDTO.toString());
+        return jwtUserDTO;
     }
 
-    public String loginByPhone(LoginQuery loginQuery){
+    public JwtUserDTO loginByPhone(LoginQuery loginQuery){
         SmsAuthenticationToken authenticationToken =
                 new SmsAuthenticationToken(loginQuery.getIdentifier(), loginQuery.getCredential());
-        String token = doLogin(authenticationToken);
-        return token;
+        JwtUserDTO jwtUserDTO = doLogin(authenticationToken);
+        return jwtUserDTO;
     }
 
     @Transactional
@@ -92,20 +95,26 @@ public class LoginServiceImpl {
             throw new BadRequestException("用户名已经注册存在");
         if(userMapper.selectUserAuthByIdentifier(registerQuery.getPhone())!=null)
             throw new BadRequestException("手机已经注册存在");
-           UserDO user = new UserDO(null,new Date(),null,registerQuery.getUsername(),null, RoleEnum.STUDENT,true);
-           this.userMapper.insertUser(user);
-           log.info("registStudent add user id:" + user.getId());
-           UserAuthDO userAuth = new UserAuthDO(null,new Date(),null,user.getId(),AccountEnum.LOCAL,registerQuery.getUsername(),passwordEncoder.encode(registerQuery.getPassword()));
-           this.userMapper.insertUserAuth(userAuth);
-           userAuth.setIdentifier(registerQuery.getPhone());
-           userAuth.setIdentity_type(AccountEnum.PHONE);
-           this.userMapper.insertUserAuth(userAuth);
-           StudentDO student = new StudentDO();
-           student.setSid(registerQuery.getIdNumber());
-           student.setUser_id(user.getId());
-           student.setGmt_create(new Date());
-           this.studentMapper.insertStudent(student);
-           return new StudentDTO(user);
+        // 先注册用户基本信息
+       UserDO user = new UserDO(null,new Date(),new Date(),registerQuery.getUsername(),null, RoleEnum.STUDENT,true);
+       Boolean isSuccess = this.userMapper.insertUser(user);
+
+       // 注册凭证信息(用户名)
+       UserAuthDO userAuth = new UserAuthDO(null,new Date(),null,user.getId(),AccountEnum.LOCAL,registerQuery.getUsername(),passwordEncoder.encode(registerQuery.getPassword()));
+       isSuccess = this.userMapper.insertUserAuth(userAuth);
+
+        // 注册凭证信息(手机号)
+       userAuth.setIdentifier(registerQuery.getPhone());
+       userAuth.setIdentity_type(AccountEnum.PHONE);
+       isSuccess = this.userMapper.insertUserAuth(userAuth);
+        // 初始化学生账户
+       StudentDO student = new StudentDO();
+       student.setSid(registerQuery.getIdNumber());
+       student.setPhone(registerQuery.getPhone());
+       student.setUser_id(user.getId());
+       student.setGmt_create(new Date());
+       this.studentMapper.insertStudent(student);
+       return new StudentDTO(user,student);
     }
 
     @Transactional
@@ -114,30 +123,39 @@ public class LoginServiceImpl {
             throw new BadRequestException("用户名已经注册存在");
         if(userMapper.selectUserAuthByIdentifier(registerQuery.getPhone())!=null)
             throw new BadRequestException("手机已经注册存在");
+        // 先注册用户基本信息
         UserDO user = new UserDO(null,new Date(),null,registerQuery.getUsername(),null, RoleEnum.TEACHER,true);
         this.userMapper.insertUser(user);
-        log.info("registStudent add user id:" + user.getId());
-        UserAuthDO userAuth = new UserAuthDO(null,new Date(),null,user.getId(),AccountEnum.LOCAL,registerQuery.getUsername(),registerQuery.getPassword());
+        // 注册凭证信息(用户名)
+        UserAuthDO userAuth = new UserAuthDO(null,new Date(),null,user.getId(),AccountEnum.LOCAL,registerQuery.getUsername(),passwordEncoder.encode(registerQuery.getPassword()));
         this.userMapper.insertUserAuth(userAuth);
+        // 注册凭证信息(手机号)
         userAuth.setIdentifier(registerQuery.getPhone());
         userAuth.setIdentity_type(AccountEnum.PHONE);
         this.userMapper.insertUserAuth(userAuth);
+        // 初始化教师账户
         TeacherDO teacher = new TeacherDO();
+        teacher.setPhone(registerQuery.getPhone());
         teacher.setTid(registerQuery.getIdNumber());
         teacher.setUser_id(user.getId());
         teacher.setGmt_create(new Date());
         this.teacherMapper.insertTeacher(teacher);
-        return new TeacherDTO(user);
+        return new TeacherDTO(user,teacher);
     }
 
-
-    public void fastRegist(FastRegisterQuery registerQuery){
+    /**
+     *  快速注册
+     * @param registerQuery
+     */
+    @Transactional
+    public UserDO fastRegist(FastRegisterQuery registerQuery){
         if(userMapper.selectUserAuthByIdentifier(registerQuery.getPhone())!=null)
             throw new BadRequestException("手机已经注册存在");
         UserDO user = new UserDO(null,new Date(),null,registerQuery.getPhone(),null, RoleEnum.UNKOWN,true);
-        this.userMapper.insertUser(user);
+        Boolean isSuccess = this.userMapper.insertUser(user);
         UserAuthDO userAuth = new UserAuthDO(null,new Date(),null,user.getId(),AccountEnum.PHONE,registerQuery.getPhone(),passwordEncoder.encode(registerQuery.getPhone()));
         this.userMapper.insertUserAuth(userAuth);
+        return user;
     }
 
     @Transactional

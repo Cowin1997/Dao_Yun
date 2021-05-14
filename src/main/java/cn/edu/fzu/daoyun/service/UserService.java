@@ -5,5 +5,5 @@ import cn.edu.fzu.daoyun.entity.UserDO;
 
 public interface UserService {
     public UserDO getUserById(Integer id);
-    public UserDTO getUserDetailByIdentifier(String identifier);
+    public UserDTO getUserDetailByIdentifier(String identifier,String type);
 }

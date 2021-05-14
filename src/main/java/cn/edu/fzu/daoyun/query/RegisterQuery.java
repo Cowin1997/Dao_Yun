@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterQuery {
-    @ApiModelProperty(required = true, value="身份类型{3:老师,4:学生}",example="1")
+    @ApiModelProperty(required = true, value="身份类型{3:老师,4:学生}",example="3")
     @NotNull
     private Integer type;
     @NotNull

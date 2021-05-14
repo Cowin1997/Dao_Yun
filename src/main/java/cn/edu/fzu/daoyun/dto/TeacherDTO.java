@@ -1,5 +1,6 @@
 package cn.edu.fzu.daoyun.dto;
 
+import cn.edu.fzu.daoyun.entity.TeacherDO;
 import cn.edu.fzu.daoyun.entity.UserDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +13,5 @@ import lombok.ToString;
 @NoArgsConstructor
 public class TeacherDTO {
     private UserDO account;
+    private TeacherDO info;
 }

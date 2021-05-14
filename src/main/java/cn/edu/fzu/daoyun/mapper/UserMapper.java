@@ -20,12 +20,12 @@ public interface UserMapper {
     @Insert("insert into user(nickname,avatar,role_id,enabled,gmt_create,gmt_modified) values (" +
             "#{nickname},#{avatar},#{role_id},#{enabled},#{gmt_create},#{gmt_modified});")
     @Options(useGeneratedKeys = true,keyProperty = "id",keyColumn = "id")
-    public Integer insertUser(UserDO user);
+    public Boolean insertUser(UserDO user);
 
     @Insert("insert into user_auth(user_id,identity_type,identifier,credential,gmt_create,gmt_modified) values (" +
             "#{user_id},#{identity_type},#{identifier},#{credential},#{gmt_create},#{gmt_modified});")
     @Options(useGeneratedKeys = true,keyProperty = "id",keyColumn = "id")
-    public Integer insertUserAuth(UserAuthDO userAuth);
+    public Boolean insertUserAuth(UserAuthDO userAuth);
 
     @Update("update user_auth set credential=#{newPass} where identifier=#{phone};")
     public Boolean updatePwd(String phone, String newPass);
